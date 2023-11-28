@@ -2,8 +2,8 @@ name: vanilla-first-setup
 type: dpkg-buildpackage
 source:
   type: git
-  url: https://github.com/Vanilla-OS/first-setup.git
-  branch: main
+  url: https://github.com/taukakao/first-setup.git
+  branch: accounts-service-fixes
   commit: latest
   paths:
   - vanilla-first-setup
