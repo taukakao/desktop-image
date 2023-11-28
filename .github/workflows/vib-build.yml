@@ -25,7 +25,7 @@ jobs:
         ./vib build recipe.yml
 
     - name: Build the Docker image
-      run: docker image build -f Containerfile --tag ghcr.io/vanilla-os/desktop:main .
+      run: docker image build -f Containerfile --tag ghcr.io/taukakao/desktop:main .
 
     # Push the image to GHCR (Image Registry)
     - name: Push To GHCR
