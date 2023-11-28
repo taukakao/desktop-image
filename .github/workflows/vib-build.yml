@@ -2,7 +2,7 @@ name: Vib Build
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "fix-first-setup" ]
   workflow_dispatch:
 
 env:
