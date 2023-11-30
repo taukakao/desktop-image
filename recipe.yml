@@ -1,4 +1,4 @@
-base: ghcr.io/vanilla-os/core:main
+base: ghcr.io/taukakao/fixaccountservice:main
 name: Vanilla Desktop
 id: vanilla-desktop
 labels:
