@@ -1,4 +1,4 @@
-base: ghcr.io/vanilla-os/core:main
+base: ghcr.io/taukakao/core:fix-os-prober
 name: Vanilla Desktop
 id: vanilla-desktop
 labels:
