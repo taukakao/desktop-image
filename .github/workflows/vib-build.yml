@@ -60,12 +60,12 @@ jobs:
     - name: Extra image tag branch
       if: ${{ github.ref_type != 'tag' }}
       run: |
-        echo "EXTRA_TAG='ref,event=branch'" >> "$GITHUB_ENV"
+        echo "EXTRA_TAG=ref,event=branch" >> "$GITHUB_ENV"
 
     - name: Extra image tag release
       if: ${{ github.ref_type == 'tag' }}
       run: |
-        echo "EXTRA_TAG='raw,main'" >> "$GITHUB_ENV"
+        echo "EXTRA_TAG=raw,main" >> "$GITHUB_ENV"
 
     - name: Docker meta
       id: docker_meta
