@@ -161,3 +161,8 @@ stages:
       - rm -r /usr/share/gnome-shell/extensions/vso\@vanillaos.org
       - mv /tmp/patch-vso-gnome-ext/vso-gnome-ext-1.3/vso\@vanillaos.org /usr/share/gnome-shell/extensions/vso\@vanillaos.org
       - rm -r /tmp/patch-vso-gnome-ext
+
+  - name: patch-ssh-host-keys
+    type: shell
+    commands:
+      - rm /etc/ssh/ssh_host_*key*
