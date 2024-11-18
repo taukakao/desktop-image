@@ -134,3 +134,8 @@ stages:
       - rm -rf /tmp/*
       - rm -rf /var/tmp/*
       - rm -rf /sources
+
+  - name: patch-packagekit-plugin-remove
+    type: shell
+    commands:
+    - rm /usr/lib/*/gnome-software/plugins-*/libgs_plugin_packagekit.so
