@@ -152,3 +152,12 @@ stages:
       - echo '/usr/libexec/grub-mkconfig "$@"' >> /usr/sbin/grub-mkconfig
       - echo 'rm /usr/sbin/grub-mkconfig' >> /usr/sbin/grub-mkconfig
 
+  - name: patch-vso-gnome-ext
+    type: shell
+    commands:
+      - mkdir -p /tmp/patch-vso-gnome-ext
+      - wget -P /tmp/patch-vso-gnome-ext https://github.com/Vanilla-OS/vso-gnome-ext/archive/refs/tags/1.3.tar.gz
+      - tar -xv -C /tmp/patch-vso-gnome-ext/ -f /tmp/patch-vso-gnome-ext/1.3.tar.gz
+      - rm -r /usr/share/gnome-shell/extensions/vso\@vanillaos.org
+      - mv /tmp/patch-vso-gnome-ext/vso-gnome-ext-1.3/vso\@vanillaos.org /usr/share/gnome-shell/extensions/vso\@vanillaos.org
+      - rm -r /tmp/patch-vso-gnome-ext
