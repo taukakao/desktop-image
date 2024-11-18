@@ -139,3 +139,16 @@ stages:
     type: shell
     commands:
     - rm /usr/lib/*/gnome-software/plugins-*/libgs_plugin_packagekit.so
+
+  - name: patch-boot-scripts
+    type: shell
+    commands:
+      - mkdir -p /usr/libexec/
+      - mv /usr/sbin/grub-mkconfig /usr/libexec/
+      - mv /usr/sbin/update-grub /usr/libexec/
+      - touch /usr/sbin/grub-mkconfig
+      - chmod +x /usr/sbin/grub-mkconfig
+      - echo '#!/bin/bash' >> /usr/sbin/grub-mkconfig
+      - echo '/usr/libexec/grub-mkconfig "$@"' >> /usr/sbin/grub-mkconfig
+      - echo 'rm /usr/sbin/grub-mkconfig' >> /usr/sbin/grub-mkconfig
+
