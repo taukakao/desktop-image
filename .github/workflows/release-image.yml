@@ -84,19 +84,8 @@ jobs:
 
     - name: Upload image
       run: |
-        docker push image-to-upload:latest ${{ env.IMAGE_URL }}:test-diff-image
-
-    # - name: Build and Push the Docker image
-    #   id: push
-    #   uses: docker/build-push-action@v6
-    #   with:
-    #     context: .
-    #     file: Containerfile
-    #     push: ${{ github.event_name != 'pull_request' }}
-    #     tags: ${{ steps.docker_meta.outputs.tags }}
-    #     labels: ${{ steps.docker_meta.outputs.labels }}
-    #     platforms: linux/amd64
-    #     provenance: false
+        docker image tag image-to-upload:latest ${{ env.IMAGE_URL }}:test-diff-image
+        docker push ${{ env.IMAGE_URL }}:test-diff-image
 
   # differ:
   #   runs-on: ubuntu-latest
