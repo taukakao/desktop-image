@@ -82,15 +82,6 @@ jobs:
         /run/current-image/ /
         docker commit new-image-container image-to-upload:latest
 
-    - name: Create new image
-      run: |
-        docker run --name new-image-container -v /current-image-fs:/run/current-image:ro \
-        ${{ env.IMAGE_URL_BASE }} \
-        rsync --archive --checksum --delete \
-        --exclude=/run/current-image --exclude=/sys --exclude=/proc --exclude=/dev --exclude=/etc/hosts --exclude=/run/.containerenv --exclude=/etc/hostname --exclude=/etc/resolv.conf \
-        /run/current-image/ /
-        docker commit new-image-container image-to-upload:latest
-
     - name: Upload image
       run: |
         docker push image-to-upload:latest ${{ env.IMAGE_URL }}:test-diff-image
