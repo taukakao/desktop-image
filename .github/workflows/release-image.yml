@@ -25,12 +25,9 @@ jobs:
         echo "REPO_OWNER_LOWERCASE=$REPO_OWNER_LOWERCASE" >> "$GITHUB_ENV"
         echo "IMAGE_URL=ghcr.io/$REPO_OWNER_LOWERCASE/desktop" >> "$GITHUB_ENV"
 
-    # - name: Generate image name with tag
-    #   run: |
-    #     echo "IMAGE_URL_CURRENT=${{ env.IMAGE_URL }}:sha-${{ github.sha }}" >> "$GITHUB_ENV"
-    - name: Use random image as current
+    - name: Generate image name with tag
       run: |
-        echo "IMAGE_URL_CURRENT=${{ env.IMAGE_URL }}:sha-41ddb085b118872a3a4faf528bb5df5cea06c128" >> "$GITHUB_ENV"
+        echo "IMAGE_URL_CURRENT=${{ env.IMAGE_URL }}:sha-${{ github.sha }}" >> "$GITHUB_ENV"
 
 
     - name: Generate base image name with tag
@@ -73,6 +70,15 @@ jobs:
 
     - name: Create new image
       if: ${{ inputs.base-tag != '' }}
+      run: |
+        docker run --name new-image-container -v /current-image-fs:/run/current-image:ro \
+        ${{ env.IMAGE_URL_BASE }} \
+        rsync --archive --checksum --delete \
+        --exclude=/run/current-image --exclude=/sys --exclude=/proc --exclude=/dev --exclude=/etc/hosts --exclude=/run/.containerenv --exclude=/etc/hostname --exclude=/etc/resolv.conf \
+        /run/current-image/ /
+        docker commit new-image-container image-to-upload:latest
+
+    - name: Create new image
       run: |
         docker run --name new-image-container -v /current-image-fs:/run/current-image:ro \
         ${{ env.IMAGE_URL_BASE }} \
