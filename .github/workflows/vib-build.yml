@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - 'dev'
-    tags:
-      - '*'
   workflow_dispatch:
   pull_request:
 
@@ -18,9 +16,9 @@ jobs:
 
     steps:
     - name: Verify Base Image Integrity
-      if: ${{ github.ref_type == 'tag' }}
+      if: ${{ github.event_name != 'pull_request' }}
       run:
-        gh attestation verify oci://ghcr.io/vanilla-os/core:main --owner Vanilla-OS
+        gh attestation verify oci://ghcr.io/vanilla-os/core:dev --owner Vanilla-OS
       env:
         GH_TOKEN: ${{ github.token }}
 
@@ -35,11 +33,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-
-    - name: Change tag in recipe.
-      if: ${{ github.ref_type == 'tag' }}
-      run: |
-        sed 's/ghcr.io\/vanilla-os\/core:dev/ghcr.io\/vanilla-os\/core:main/' -i recipe.yml
 
     - uses: vanilla-os/vib-gh-action@v0.8.1
       with:
@@ -56,17 +49,7 @@ jobs:
         REPO_OWNER_LOWERCASE="$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')"
         echo "REPO_OWNER_LOWERCASE=$REPO_OWNER_LOWERCASE" >> "$GITHUB_ENV"
         echo "IMAGE_URL=ghcr.io/$REPO_OWNER_LOWERCASE/desktop" >> "$GITHUB_ENV"
-
-    - name: Extra image tag branch
-      if: ${{ github.ref_type != 'tag' }}
-      run: |
-        echo "EXTRA_TAG=ref,event=branch" >> "$GITHUB_ENV"
-
-    - name: Extra image tag release
-      if: ${{ github.ref_type == 'tag' }}
-      run: |
-        echo "EXTRA_TAG=raw,main" >> "$GITHUB_ENV"
-
+        
     - name: Docker meta
       id: docker_meta
       uses: docker/metadata-action@v5
@@ -74,7 +57,7 @@ jobs:
         images: |
           ${{ env. IMAGE_URL }}
         tags: |
-          type=${{ env.EXTRA_TAG }}
+          type=ref,event=branch
           type=sha,format=long
 
     - name: Set up Docker Buildx
@@ -97,8 +80,6 @@ jobs:
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.docker_meta.outputs.tags }}
         labels: ${{ steps.docker_meta.outputs.labels }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
         platforms: linux/amd64
         provenance: false
 
