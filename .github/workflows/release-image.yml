@@ -25,14 +25,18 @@ jobs:
         echo "REPO_OWNER_LOWERCASE=$REPO_OWNER_LOWERCASE" >> "$GITHUB_ENV"
         echo "IMAGE_URL=ghcr.io/$REPO_OWNER_LOWERCASE/desktop" >> "$GITHUB_ENV"
 
-    - name: Generate image name with tag
+    # - name: Generate image name with tag
+    #   run: |
+    #     echo "IMAGE_URL_CURRENT=${{ env.IMAGE_URL }}:sha-${{ github.sha }}" >> "$GITHUB_ENV"
+    - name: Use random image as current
       run: |
-        echo "IMAGE_URL_CURRENT=${{ env.IMAGE_URL }}:${{ github.sha }}" >> "$GITHUB_ENV"
+        echo "IMAGE_URL_CURRENT=${{ env.IMAGE_URL }}:sha-41ddb085b118872a3a4faf528bb5df5cea06c128" >> "$GITHUB_ENV"
+
 
     - name: Generate base image name with tag
       if: ${{ inputs.base-tag != '' }}
       run: |
-        echo "IMAGE_URL_BASE=${{ env.IMAGE_URL }}:sha-${{ inputs.base-tag }}" >> "$GITHUB_ENV"
+        echo "IMAGE_URL_BASE=${{ env.IMAGE_URL }}:${{ inputs.base-tag }}" >> "$GITHUB_ENV"
 
     - name: Login to GitHub Package Registry
       uses: docker/login-action@v3
