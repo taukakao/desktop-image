@@ -54,19 +54,22 @@ jobs:
       run: |
         docker image tag ${{ env.IMAGE_URL_CURRENT }} image-to-upload:latest
 
-    - name: Download base image
-      if: ${{ inputs.base-tag != '' }}
-      run: |
-        docker image pull ${{ env.IMAGE_URL_BASE }}
-
     - name: Extract new image
       if: ${{ inputs.base-tag != '' }}
       run: |
         docker run --name current-image-container ${{ env.IMAGE_URL_CURRENT }} echo done
         docker export --output="current-image.tar" current-image-container
+        docker rm current-image-container
+        docker image rm ${{ env.IMAGE_URL_CURRENT }}
         sudo mkdir /current-image-fs
         sudo tar --extract --directory="/current-image-fs" --file="current-image.tar"
+        rm current-image.tar
         ls -Al /current-image-fs
+
+    - name: Download base image
+      if: ${{ inputs.base-tag != '' }}
+      run: |
+        docker image pull ${{ env.IMAGE_URL_BASE }}
 
     - name: Create new image
       if: ${{ inputs.base-tag != '' }}
