@@ -93,7 +93,7 @@ jobs:
 
     - name: Upload image
       run: |
-        docker image pushj
+        docker push image-to-upload:latest ${{ env.IMAGE_URL }}:test-diff-image
 
     # - name: Build and Push the Docker image
     #   id: push
