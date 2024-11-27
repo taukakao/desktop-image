@@ -102,6 +102,11 @@ stages:
     commands:
     - rm /usr/lib/*/gnome-software/plugins-*/libgs_plugin_packagekit.so
 
+  - name: install vim
+    type: shell
+    commands:
+    - apt-get install -y vim
+
   - name: cleanup
     type: shell
     commands:
