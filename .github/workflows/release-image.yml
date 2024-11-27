@@ -65,7 +65,7 @@ jobs:
         docker run --name current-image-container ${{ env.IMAGE_URL_CURRENT }} echo done
         docker export --output="current-image.tar" current-image-container
         sudo mkdir /current-image-fs
-        sudo tar --extract --directory="/current-image-fs" --file="current.tar"
+        sudo tar --extract --directory="/current-image-fs" --file="current-image.tar"
         ls -Al /current-image-fs
 
     - name: Create new image
