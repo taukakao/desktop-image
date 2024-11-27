@@ -27,12 +27,12 @@ jobs:
 
     - name: Generate image name with tag
       run: |
-        echo "IMAGE_URL_TAG=${{ env.IMAGE_URL }}:${{ inputs.base-tag }}" >> "$GITHUB_ENV"
+        echo "IMAGE_URL_CURRENT=${{ env.IMAGE_URL }}:${{ github.sha }}" >> "$GITHUB_ENV"
 
     - name: Generate base image name with tag
       if: ${{ inputs.base-tag != '' }}
       run: |
-        echo "IMAGE_URL_BASE=${{ env.IMAGE_URL }}:sha-${{ github.sha }}" >> "$GITHUB_ENV"
+        echo "IMAGE_URL_BASE=${{ env.IMAGE_URL }}:sha-${{ inputs.base-tag }}" >> "$GITHUB_ENV"
 
     - name: Login to GitHub Package Registry
       uses: docker/login-action@v3
@@ -41,28 +41,39 @@ jobs:
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    # - name: Download current image
-    #   run: |
-    #     docker image pull ${{ env.IMAGE_URL_TAG }}
+    - name: Download current image
+      run: |
+        docker image pull ${{ env.IMAGE_URL_CURRENT }}
 
-    # - name: Retag current image
-    #   if: ${{ inputs.base-tag == '' }}
-    #   run: |
-    #     docker image tag ${{ env.IMAGE_URL_TAG }} image-to-upload:latest
+    - name: Retag current image
+      if: ${{ inputs.base-tag == '' }}
+      run: |
+        docker image tag ${{ env.IMAGE_URL_CURRENT }} image-to-upload:latest
 
     - name: Download base image
       if: ${{ inputs.base-tag != '' }}
       run: |
         docker image pull ${{ env.IMAGE_URL_BASE }}
 
+    - name: Extract new image
+      if: ${{ inputs.base-tag != '' }}
+      run: |
+        docker run --name current-image-container ${{ env.IMAGE_URL_CURRENT }} echo done
+        docker export --output="current-image.tar" current-image-container
+        sudo mkdir /current-image-fs
+        sudo tar --extract --directory="/current-image-fs" --file="current.tar"
+        ls -Al /current-image-fs
+
     - name: Create new image
       if: ${{ inputs.base-tag != '' }}
       run: |
-        docker run --name base-image-container ${{ env.IMAGE_URL_BASE }} echo done
-        docker export --output="base.tar" base-image-container
-        mkdir base-image-fs
-        tar --extract --directory=base-image-fs --file=base.tar
-        ls -Al base-image-fs
+        docker run --name new-image-container -v /current-image-fs:/run/current-image:ro \
+        ${{ env.IMAGE_URL_BASE }} \
+        rsync --archive --checksum --delete \
+        --exclude=/run/current-image --exclude=/sys --exclude=/proc --exclude=/dev --exclude=/etc/hosts --exclude=/run/.containerenv --exclude=/etc/hostname --exclude=/etc/resolv.conf \
+        /run/current-image/ /
+        docker commit new-image-container image-to-upload:latest
+
 
     # - name: Build and Push the Docker image
     #   id: push
