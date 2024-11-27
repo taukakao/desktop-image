@@ -19,13 +19,12 @@ jobs:
       id-token: write # Additional permissions for the persistence of the attestations
 
     steps:
-    - uses: actions/checkout@v4
-
     - name: Generate image name
       run: |
         REPO_OWNER_LOWERCASE="$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')"
         echo "REPO_OWNER_LOWERCASE=$REPO_OWNER_LOWERCASE" >> "$GITHUB_ENV"
         echo "IMAGE_URL=ghcr.io/$REPO_OWNER_LOWERCASE/desktop" >> "$GITHUB_ENV"
+        echo "IMAGE_URL_TAG=${{ env.IMAGE_URL }}:${{ inputs.base-tag }}" >> "$GITHUB_ENV"
 
     - name: Login to GitHub Package Registry
       uses: docker/login-action@v3
@@ -34,12 +33,29 @@ jobs:
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Test docker
+    - name: Download current image
       run: |
-        docker image ls
-        echo ${{ inputs.base-tag }}
-        whoami
-        echo $UID
+        docker image pull ${{ env.IMAGE_URL_TAG }}
+
+    - name: Retag current image
+      if: ${{ inputs.base-tag == '' }}
+      run: |
+        docker image tag ${{ env.IMAGE_URL_TAG }} image-to-upload:latest
+
+    - name: Download base image
+      if: ${{ inputs.base-tag != '' }}
+      run: |
+        echo "IMAGE_URL_BASE=${{ env.IMAGE_URL }}:${{ github.sha }}" >> "$GITHUB_ENV"
+        docker image pull ${{ env.IMAGE_URL_BASE }}
+
+    - name: Create new image
+      if: ${{ inputs.base-tag != '' }}
+      run: |
+        docker run --name base-container ${{ env.IMAGE_URL_BASE }} echo done
+        docker export --output="base.tar" base-container
+        mkdir base-image-fs
+        tar --extract --directory=base-image-fs --file=base.tar
+        ls -Al base-image-fs
 
     # - name: Build and Push the Docker image
     #   id: push
