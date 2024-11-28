@@ -50,6 +50,12 @@ jobs:
       run: |
         docker image pull ${{ env.IMAGE_URL_CURRENT }}
 
+    - name: Verify current image
+      run:
+        gh attestation verify oci://${{ env.IMAGE_URL_CURRENT }} --owner Vanilla-OS
+      env:
+        GH_TOKEN: ${{ github.token }}
+
     - name: Retag current image
       if: ${{ inputs.base-tag == '' }}
       run: |
@@ -72,6 +78,12 @@ jobs:
       run: |
         docker image pull ${{ env.IMAGE_URL_BASE }}
 
+    - name: Verify base image
+      run:
+        gh attestation verify oci://${{ env.IMAGE_URL_BASE }} --owner Vanilla-OS
+      env:
+        GH_TOKEN: ${{ github.token }}
+
     - name: Create new image
       if: ${{ inputs.base-tag != '' }}
       run: |
@@ -84,8 +96,19 @@ jobs:
 
     - name: Upload image
       run: |
-        docker image tag image-to-upload:latest ${{ env.IMAGE_URL }}:test-diff-image
-        docker push ${{ env.IMAGE_URL }}:test-diff-image
+        IMAGE_URL_UPLOAD="${{ env.IMAGE_URL }}:test-diff-image"
+        docker image tag image-to-upload:latest "$IMAGE_URL_UPLOAD"
+        docker push "$IMAGE_URL_UPLOAD"
+        IMAGE_DIGEST="podman image inspect "$IMAGE_URL_UPLOAD" | jq '.[0].Digest'"
+        echo "IMAGE_DIGEST=$IMAGE_DIGEST" >> "$GITHUB_ENV"
+        
+    - name: Attest pushed image
+      uses: actions/attest-build-provenance@v1
+      id: attest
+      with:
+        subject-name: ${{ env.IMAGE_URL }}
+        subject-digest: ${{ env.IMAGE_DIGEST }}
+        push-to-registry: false
 
   # differ:
   #   runs-on: ubuntu-latest
