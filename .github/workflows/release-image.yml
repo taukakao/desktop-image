@@ -86,7 +86,7 @@ jobs:
         docker image pull ${{ env.IMAGE_URL_BASE }}
 
     - name: Verify base image
-      if: github.repository == 'vanilla-os'
+      if: inputs.base-tag != '' && github.repository == 'vanilla-os'
       run:
         gh attestation verify oci://${{ env.IMAGE_URL_BASE }} --owner Vanilla-OS
       env:
