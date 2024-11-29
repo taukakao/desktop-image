@@ -132,7 +132,7 @@ jobs:
         TAG_1="v$WITHOUT_V"
         TAG_2="$WITHOUT_V"
         TAG_3="v$PART_1"
-        TAG_4="${PART_1}.${Part_2}"
+        TAG_4="${PART_1}.${PART_2}"
         docker image tag image-to-upload:latest "${{ env.IMAGE_URL }}:$TAG_1"
         docker image tag image-to-upload:latest "${{ env.IMAGE_URL }}:$TAG_2"
         docker image tag image-to-upload:latest "${{ env.IMAGE_URL }}:$TAG_3"
