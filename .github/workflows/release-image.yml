@@ -106,7 +106,7 @@ jobs:
       id: push
       run: |
         IMAGE_URL_UPLOAD="${{ env.IMAGE_URL }}:test-diff-image"
-        echo "uploaded_image=$IMAGE_URL_UPLOAD"" >> "$GITHUB_OUTPUT"
+        echo "uploaded_image=$IMAGE_URL_UPLOAD" >> "$GITHUB_OUTPUT"
         docker image tag image-to-upload:latest "$IMAGE_URL_UPLOAD"
         docker push "$IMAGE_URL_UPLOAD"
         IMAGE_DIGEST="podman image inspect "$IMAGE_URL_UPLOAD" | jq '.[0].Digest'"
