@@ -108,7 +108,7 @@ jobs:
         docker image inspect $IMAGE_URL_UPLOAD | jq '.'
         docker image inspect $IMAGE_URL_UPLOAD | jq '.[0]'
         docker image inspect $IMAGE_URL_UPLOAD | jq '.[0].Id'
-        IMAGE_DIGEST="$(docker image inspect $IMAGE_URL_UPLOAD)" | jq '.[0].Id'
+        IMAGE_DIGEST="$(docker image inspect $IMAGE_URL_UPLOAD | jq '.[0].Id')"
         echo "IMAGE_DIGEST=$IMAGE_DIGEST" >> "$GITHUB_ENV"
         
     - name: Attest pushed image
