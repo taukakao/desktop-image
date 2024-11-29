@@ -105,12 +105,13 @@ jobs:
         echo "uploaded_image=$IMAGE_URL_UPLOAD" >> "$GITHUB_OUTPUT"
         docker image tag image-to-upload:latest "$IMAGE_URL_UPLOAD"
         docker push "$IMAGE_URL_UPLOAD"
-        docker image inspect $IMAGE_URL_UPLOAD | jq '.'
-        docker image inspect $IMAGE_URL_UPLOAD | jq '.[0]'
-        docker image inspect $IMAGE_URL_UPLOAD | jq '.[0].Id'
         IMAGE_DIGEST="$(docker image inspect $IMAGE_URL_UPLOAD | jq '.[0].Id')"
         echo "IMAGE_DIGEST=$IMAGE_DIGEST" >> "$GITHUB_ENV"
         
+    - name: what
+      run: |
+        echo ${{ env.IMAGE_DIGEST }}    
+
     - name: Attest pushed image
       uses: actions/attest-build-provenance@v1
       id: attest
