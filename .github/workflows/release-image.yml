@@ -123,7 +123,7 @@ jobs:
         docker push "${{ env.IMAGE_URL }}:latest"
 
     - name: Push version tags
-      if: ${{ github.ref_type == "tag" }}
+      if: github.ref_type == 'tag'
       run: |
         WITHOUT_V="$(echo ${{ github.ref_name }} | cut -d 'v' -f2)"
         PART_1="$(echo $WITHOUT_V | cut -d '.' -f1)"
