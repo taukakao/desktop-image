@@ -52,10 +52,6 @@ jobs:
       run: |
         docker image pull ${{ env.IMAGE_URL_CURRENT }}
 
-    - name: print repo name
-      run: |
-        echo ${{ github.repository_owner }}
-
     - name: Verify current image
       if: github.repository_owner == 'vanilla-os'
       run:
