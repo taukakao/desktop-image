@@ -52,7 +52,12 @@ jobs:
       run: |
         docker image pull ${{ env.IMAGE_URL_CURRENT }}
 
+    - name: print repo name
+      run: |
+        echo ${{ github.repository_owner }}
+
     - name: Verify current image
+      if: github.repository_owner == 'vanilla-os'
       run:
         gh attestation verify oci://${{ env.IMAGE_URL_CURRENT }} --owner Vanilla-OS
       env:
@@ -81,6 +86,7 @@ jobs:
         docker image pull ${{ env.IMAGE_URL_BASE }}
 
     - name: Verify base image
+      if: github.repository == 'vanilla-os'
       run:
         gh attestation verify oci://${{ env.IMAGE_URL_BASE }} --owner Vanilla-OS
       env:
