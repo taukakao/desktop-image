@@ -7,6 +7,10 @@ on:
         type: string
         required: false
         description: Tag of image to layer changes on. Leave empty for clean image.
+      tag-main-latest:
+        type: boolean
+        default: true
+        description: Tag the resulting image latest and main.
 
 jobs:
 
@@ -99,7 +103,7 @@ jobs:
         /run/current-image/ /
         docker commit new-image-container image-to-upload:latest
 
-    - name: Upload image
+    - name: Push image
       id: push
       run: |
         IMAGE_URL_UPLOAD="${{ env.IMAGE_URL }}:test-diff-image"
@@ -109,11 +113,37 @@ jobs:
         IMAGE_DIGEST="$(docker image inspect $IMAGE_URL_UPLOAD | jq -r '.[0].RepoDigests[0]' | cut -d '@' -f2)"
         echo "IMAGE_DIGEST=$IMAGE_DIGEST" >> "$GITHUB_ENV"
         echo "uploaded_digest=$IMAGE_DIGEST" >> "$GITHUB_OUTPUT"
-        
-    - name: what
-      run: |
-        echo ${{ env.IMAGE_DIGEST }}    
 
+    - name: Push extra tags
+      if: inputs.tag-main-latest
+      run: |
+        docker image tag image-to-upload:latest "${{ env.IMAGE_URL }}:main"
+        docker image tag image-to-upload:latest "${{ env.IMAGE_URL }}:latest"
+        docker push "${{ env.IMAGE_URL }}:main"
+        docker push "${{ env.IMAGE_URL }}:latest"
+
+    - name: Push version tags
+      if: github.ref_type == "tag"
+      run: |
+        WITHOUT_V="$(echo ${{ github.ref_name }} | cut -d 'v' -f2)"
+        PART_1="$(echo $WITHOUT_V | cut -d '.' -f1)"
+        PART_2="$(echo $WITHOUT_V | cut -d '.' -f2)"
+        PART_3="$(echo $WITHOUT_V | cut -d '.' -f3)"
+        TAG_1="v$WITHOUT_V"
+        TAG_2="$WITHOUT_V"
+        TAG_3="v$PART_1"
+        TAG_4="${PART_1}.${Part_2}"
+        docker image tag image-to-upload:latest "${{ env.IMAGE_URL }}:TAG_1"
+        docker image tag image-to-upload:latest "${{ env.IMAGE_URL }}:TAG_2"
+        docker image tag image-to-upload:latest "${{ env.IMAGE_URL }}:TAG_3"
+        docker image tag image-to-upload:latest "${{ env.IMAGE_URL }}:TAG_4"
+        docker push "${{ env.IMAGE_URL }}:$TAG_1"
+        docker push "${{ env.IMAGE_URL }}:$TAG_2"
+        docker push "${{ env.IMAGE_URL }}:$TAG_3"
+        docker push "${{ env.IMAGE_URL }}:$TAG_4"
+
+
+        
     - name: Attest pushed image
       uses: actions/attest-build-provenance@v1
       id: attest
