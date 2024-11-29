@@ -11,3 +11,4 @@ source:
   - flatpak
   - gnome-software-plugin-flatpak
   - locales-all
+  - vim
